@@ -7,25 +7,16 @@ using Pada1.BBCore.Framework;
 [Help("Checks if the enemy tank is far.")]
 public class IsTankFar : ConditionBase
 {
-    [InParam("Self tank")]
+    [InParam("Self Tank")]
     [Help("This is the tank of this behaviour tree")]
     public GameObject selfTank;
 
-    [InParam("Enemy tank")]
+    [InParam("Enemy Tank")]
     [Help("The enemy tank of this behaviour tree")]
     public GameObject enemyTank;
 
-
-    public Blackboard blackboard;
-    
-    //public override bool Check()
-    //{
-    //    Debug.Log("HOLA");
-    //    return (Vector3.Distance(selfTank.transform.position, enemyTank.transform.position) > 5.0f);
-    //}
     public override bool Check()
     {
-        Debug.Log("HOLA");
-        return true;
+        return Vector3.Distance(selfTank.transform.position, enemyTank.transform.position) > 5.0f;
     }
 }
