@@ -4,7 +4,7 @@ using Pada1.BBCore;
 using Pada1.BBCore.Framework;
 
 [Condition("MyConditions/IsTankFar?")]
-[Help("Checks if the enemy tank is far.")]
+[Help("Checks if the enemy tank is far, true if it's far.")]
 public class IsTankFar : ConditionBase
 {
     [InParam("Self Tank")]

@@ -13,12 +13,12 @@ public class RunToReload : BasePrimitiveAction
 
     [InParam("Base to Reload")]
     [Help("Base to where this tank has to reload")]
-    public Transform baseToReload;
+    public GameObject baseToReload;
 
     public override TaskStatus OnUpdate()
     {
         Moves moves = selfTank.GetComponent<Moves>();
-        moves.RunToBase(baseToReload.position);
+        moves.RunToBase(baseToReload.transform.position);
         return TaskStatus.COMPLETED;
     }
 }

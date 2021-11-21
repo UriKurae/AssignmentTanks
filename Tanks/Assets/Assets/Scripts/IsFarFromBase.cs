@@ -19,7 +19,6 @@ public class IsFarFromBase : ConditionBase
 
     public override bool Check()
     {
-        //return (Vector3.Distance(selfTank.transform.position, baseLocation.transform.position) > 2.0f);
-        return true;
+        return (Vector3.Distance(selfTank.transform.position, baseLocation.transform.position) > 2.0f);
     }
 }

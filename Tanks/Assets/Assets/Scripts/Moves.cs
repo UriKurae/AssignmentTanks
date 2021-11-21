@@ -11,57 +11,28 @@ public class Moves : MonoBehaviour
 {
     public GameObject target;
     public Collider floor;
-    GameObject[] hidingSpots;
     public GameObject[] patrolPoints;
     public int patrolIndex = 0;
     NavMeshAgent agent;
 
+    private float freq = 5.0f;
     public int ammo = 0;
+
+    public GameObject shell;
+    public Transform shellSpawner;
+
+    public GameObject turret;
+    float angleToRotate = 0.0f;
 
     void Start()
     {
         agent = this.GetComponent<NavMeshAgent>();
         patrolPoints = GameObject.FindGameObjectsWithTag("PatrolPoint");
-       // hidingSpots = GameObject.FindGameObjectsWithTag("Hide");
     }
 
     public void Seek(Vector3 location)
     {
         agent.SetDestination(location);
-    }
-
-    public void Flee(Vector3 location)
-    {
-        Vector3 fleeVector = location - this.transform.position;
-        agent.SetDestination(this.transform.position - fleeVector);
-    }
-
-    public void Pursue()
-    {
-        Vector3 targetDir = target.transform.position - this.transform.position;
-
-        float relativeHeading = Vector3.Angle(this.transform.forward, this.transform.TransformVector(target.transform.forward));
-
-        float toTarget = Vector3.Angle(this.transform.forward, this.transform.TransformVector(targetDir));
-
-//        if ((toTarget > 90 && relativeHeading < 20) || ds.currentSpeed < 0.01f)
-        if ((toTarget > 90 && relativeHeading < 20))
-        {
-            Seek(target.transform.position);
-            return;
-        }
-
-//        float lookAhead = targetDir.magnitude / (agent.speed + ds.currentSpeed);
-        float lookAhead = targetDir.magnitude / (agent.speed);
-        Seek(target.transform.position + target.transform.forward * lookAhead);
-    }
-
-    public void Evade()
-    {
-        Vector3 targetDir = target.transform.position - this.transform.position;
-//        float lookAhead = targetDir.magnitude / (agent.speed + ds.currentSpeed);
-        float lookAhead = targetDir.magnitude / agent.speed;
-        Flee(target.transform.position + target.transform.forward * lookAhead);
     }
 
     public void Patrol()
@@ -72,8 +43,23 @@ public class Moves : MonoBehaviour
     Vector3 wanderTarget = Vector3.zero;
     public void Wander()
     {
-        float wanderRadius = 10.0f;
-        float wanderDistance = 10.0f;
+      
+        if (freq > 1.0f)
+        {
+            angleToRotate = Random.Range(-180.0f, 180.0f);
+            freq = 0.0f;
+        }
+        else
+        {
+            Quaternion rotationTurret;
+            Vector3 axisRotation = new Vector3(0.0f, 1.0f, 0.0f);
+            rotationTurret = Quaternion.AngleAxis(angleToRotate * Time.deltaTime, axisRotation);
+            turret.transform.rotation *= rotationTurret;
+            freq += Time.deltaTime;
+        }
+        
+        float wanderRadius = 100.0f;
+        float wanderDistance = 50.0f;
         float wanderJitter = 3.0f;
 
         wanderTarget += new Vector3(Random.Range(-20.0f, 20.0f) * wanderJitter,
@@ -100,41 +86,36 @@ public class Moves : MonoBehaviour
     }
     public void RunToBase(Vector3 location)
     {
+        turret.transform.LookAt(location, new Vector3(0.0f, 1.0f, 0.0f));
         agent.SetDestination(location);
     }
     public void Shoot()
     {
-
-    }
-    public void Hide()
-    {
-        float dist = Mathf.Infinity;
-        Vector3 chosenSpot = Vector3.zero;
-        Vector3 chosenDir = Vector3.zero;
-        GameObject chosenGO = hidingSpots[0];
-
-        for (int i = 0; i < hidingSpots.Length; i++)
+        if (freq >= 1.0f)
         {
-            Vector3 hideDir = hidingSpots[i].transform.position - target.transform.position;
-            Vector3 hidePos = hidingSpots[i].transform.position + hideDir.normalized * 100;
+            float angle = ShootingAngle();
+            Quaternion shootingAxis;
+            Vector3 axisShoot = new Vector3(1.0f, 0.0f, 0.0f); 
+            shootingAxis = Quaternion.AngleAxis(angle, turret.transform.forward);
 
-            if (Vector3.Distance(target.transform.position, hidePos) < dist)
-            {
-                chosenSpot = hidePos;
-                chosenDir = hideDir;
-                chosenGO = hidingSpots[i];
-                dist = Vector3.Distance(this.transform.position, hidePos);
-            }
+            Rigidbody rb = Instantiate(shell.GetComponent<Rigidbody>(), shellSpawner.position, shootingAxis);
+            rb.velocity = turret.transform.forward * 10.0f;
+            freq = 0.0f;
+            ammo--;
+
+        }
+        else
+        {
+            turret.transform.LookAt(target.transform, new Vector3(0.0f, 1.0f, 0.0f));
+            freq += Time.deltaTime;
         }
 
-        Collider hideCol = chosenGO.GetComponent<Collider>();
-        Ray backRay = new Ray(chosenSpot, -chosenDir.normalized);
-        RaycastHit info;
-        float distance = 250.0f;
-        hideCol.Raycast(backRay, out info, distance);
+    }
 
+    private float ShootingAngle()
+    {
+        float shootingAngle = Mathf.Pow(10.0f, 2) + (Mathf.Sqrt(Mathf.Pow(10.0f, 4) - (-9.8f) * ((-9.8f) * Mathf.Pow(this.transform.position.x, 2) + (2 * this.transform.position.y * Mathf.Pow(10.0f, 2))))) / ((-9.8f) * this.transform.position.x);
 
-        Seek(info.point + chosenDir.normalized);
-
+        return Mathf.Atan(shootingAngle);
     }
 }
