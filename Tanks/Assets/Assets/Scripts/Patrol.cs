@@ -16,6 +16,7 @@ public class Patrol : BasePrimitiveAction
     {
         NavMeshAgent agent = selfTank.GetComponent<NavMeshAgent>();
         Moves moves = selfTank.GetComponent<Moves>();
+        moves.TurnAround();
         if (!agent.pathPending && agent.remainingDistance < 0.5f) moves.Patrol();
 
         return TaskStatus.COMPLETED;
