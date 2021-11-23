@@ -15,7 +15,7 @@ public class HasNoAmmo : ConditionBase
 
     public override bool Check()
     {
-        Debug.Log("Ammo left is " + moves.ammo);
+       //Debug.Log("Ammo left is " + moves.ammo);
         return moves.ammo > 0;
     }
 }

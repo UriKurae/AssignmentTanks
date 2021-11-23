@@ -20,12 +20,16 @@ public class Moves : MonoBehaviour
 
     public GameObject shell;
     public Transform shellSpawner;
+    public float shellVelocity = 40.0f;
 
     public GameObject turret;
     float angleToRotate = 0.0f;
 
+    float gravity;
+
     void Start()
     {
+        gravity = -(Physics.gravity.magnitude);
         agent = this.GetComponent<NavMeshAgent>();
         patrolPoints = GameObject.FindGameObjectsWithTag("PatrolPoint");
     }
@@ -81,13 +85,13 @@ public class Moves : MonoBehaviour
         if (freq >= 1.0f)
         {
             float angle = ShootingAngle();
-            Quaternion shootingAxis;
-            Vector3 axisShoot = new Vector3(1.0f, 0.0f, 0.0f); 
-            shootingAxis = Quaternion.AngleAxis(angle, axisShoot);
-            Quaternion final = shootingAxis * turret.transform.rotation;
 
-            Rigidbody rb = Instantiate(shell.GetComponent<Rigidbody>(), shellSpawner.position, final);
-            rb.velocity = turret.transform.forward * 10.0f;
+            Quaternion prevRotation = shellSpawner.transform.rotation;
+            shellSpawner.transform.localRotation = Quaternion.AngleAxis(angle, shellSpawner.worldToLocalMatrix * transform.right);
+            Debug.Log(angle);
+            Rigidbody rb = Instantiate(shell.GetComponent<Rigidbody>(), shellSpawner.position, shellSpawner.localRotation);
+            rb.velocity = shellSpawner.worldToLocalMatrix * shellSpawner.forward * shellVelocity;
+            shellSpawner.transform.rotation = prevRotation;
             freq = 0.0f;
             ammo--;
         }
@@ -101,9 +105,13 @@ public class Moves : MonoBehaviour
 
     private float ShootingAngle()
     {
-        float shootingAngle = Mathf.Pow(10.0f, 2) - (Mathf.Sqrt(Mathf.Pow(10.0f, 4) - (-9.8f) * ((-9.8f) * Mathf.Pow(this.transform.position.x, 2) + (2 * this.transform.position.y * Mathf.Pow(10.0f, 2))))) / ((-9.8f) * this.transform.position.x);
+        float a = Mathf.Pow(shellVelocity, 2);
+        float b = Mathf.Pow(shellVelocity, 4);
+        float c = gravity * (gravity * Mathf.Pow(transform.position.z, 2) + (2 * transform.position.y * Mathf.Pow(shellVelocity, 2)));
+        float d = gravity * transform.position.z;
+        float shootingAngle = (a - (Mathf.Sqrt(b - c))) / d;
 
-        return Mathf.Atan(shootingAngle);
+        return Mathf.Rad2Deg * (Mathf.Atan(shootingAngle));
     }
 
     public void TurnAround()
