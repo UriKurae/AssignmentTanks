@@ -14,6 +14,8 @@ public class Moves : MonoBehaviour
     public GameObject[] patrolPoints;
     public int patrolIndex = 0;
     NavMeshAgent agent;
+    public GameObject leftTrail;
+    public GameObject rightTrail;
 
     private float freq = 5.0f;
     private float freqWander = 1.5f;
@@ -37,6 +39,7 @@ public class Moves : MonoBehaviour
 
     public void Seek(Vector3 location)
     {
+        StartTrail();
         agent.SetDestination(location);
     }
 
@@ -78,29 +81,38 @@ public class Moves : MonoBehaviour
     }
     public void RunToBase(Vector3 location)
     {
+        StartTrail();
+
         turret.transform.LookAt(location, new Vector3(0.0f, 1.0f, 0.0f));
         agent.SetDestination(location);
     }
     public void Shoot()
     {
-        if (freq >= 1.0f)
+        if (target)
         {
-            float angle = ShootingAngle();
+            StopTrail();
 
-            Vector3 euler = shellSpawner.transform.localRotation.eulerAngles;
-            shellSpawner.transform.localRotation = Quaternion.identity;
+            if (freq >= 1.0f)
+            {
+                float angle = ShootingAngle();
 
-            shellSpawner.transform.localRotation = Quaternion.Euler(angle, euler.y, euler.z);
-            //shellSpawner.rotation = Quaternion.AngleAxis(shellSpawner.eulerAngles., new Vector3(0.0f, 1.0f, 0.0f));
-            Rigidbody rb = Instantiate(shell.GetComponent<Rigidbody>(), shellSpawner.transform.position, shellSpawner.transform.rotation);
-            rb.velocity = shellSpawner.transform.forward * shellVelocity;
-            freq = 0.0f;
-            ammo--;
-        }
-        else
-        {
-            turret.transform.LookAt(target.transform, new Vector3(0.0f, 1.0f, 0.0f));
-            freq += Time.deltaTime;
+                Vector3 euler = shellSpawner.transform.localRotation.eulerAngles;
+                shellSpawner.transform.localRotation = Quaternion.identity;
+
+                shellSpawner.transform.localRotation = Quaternion.Euler(angle, euler.y, euler.z);
+                //shellSpawner.rotation = Quaternion.AngleAxis(shellSpawner.eulerAngles., new Vector3(0.0f, 1.0f, 0.0f));
+                Rigidbody rb = Instantiate(shell.GetComponent<Rigidbody>(), shellSpawner.transform.position, shellSpawner.transform.rotation);
+                rb.velocity = shellSpawner.transform.forward * shellVelocity;
+                rb.gameObject.GetComponent<ShellScript>().parent = this.gameObject;
+
+                freq = 0.0f;
+                ammo--;
+            }
+            else
+            {
+                turret.transform.LookAt(target.transform, new Vector3(0.0f, 1.0f, 0.0f));
+                freq += Time.deltaTime;
+            } 
         }
 
     }
@@ -133,5 +145,16 @@ public class Moves : MonoBehaviour
             turret.transform.rotation *= rotationTurret;
             freq += Time.deltaTime;
         }
+    }
+
+    private void StartTrail()
+    {
+        rightTrail.GetComponent<ParticleSystem>().Play();
+        leftTrail.GetComponent<ParticleSystem>().Play();
+    }
+    private void StopTrail()
+    {
+        rightTrail.GetComponent<ParticleSystem>().Stop();
+        leftTrail.GetComponent<ParticleSystem>().Stop();
     }
 }
