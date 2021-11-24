@@ -15,6 +15,7 @@ public class Wander : BasePrimitiveAction
     {
         Moves moves = targetGameobject.GetComponent<Moves>();
         moves.Wander();
+
         return TaskStatus.COMPLETED;
     }
 }

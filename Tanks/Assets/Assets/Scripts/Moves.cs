@@ -16,6 +16,7 @@ public class Moves : MonoBehaviour
     NavMeshAgent agent;
 
     private float freq = 5.0f;
+    private float freqWander = 1.5f;
     public int ammo = 0;
 
     public GameObject shell;
@@ -46,23 +47,29 @@ public class Moves : MonoBehaviour
     }
     public void Wander()
     {
-        Vector3 wanderTarget = Vector3.zero;
-        TurnAround();
-        
-        float wanderRadius = 10.0f;
-        float wanderDistance = 10.0f;
-        float wanderJitter = 3.0f;
+        if (freqWander >= 1.5f)
+        {
+            Vector3 wanderTarget = Vector3.zero;
+            TurnAround();
 
-        wanderTarget += new Vector3(Random.Range(-1.0f, 1.0f) * wanderJitter,
-                                        0,
-                                        Random.Range(-1.0f, 1.0f) * wanderJitter);
-        wanderTarget.Normalize();
-        wanderTarget *= wanderRadius;
+            float wanderRadius = 10.0f;
+            float wanderDistance = 10.0f;
+            float wanderJitter = 3.0f;
 
-        Vector3 targetLocal = wanderTarget + new Vector3(0.0f, 0.0f, wanderDistance);
-        Vector3 targetWorld = this.transform.position + targetLocal;
+            wanderTarget += new Vector3(Random.Range(-1.0f, 1.0f) * wanderJitter,
+                                            0,
+                                            Random.Range(-1.0f, 1.0f) * wanderJitter);
+            wanderTarget.Normalize();
+            wanderTarget *= wanderRadius;
 
-        Seek(targetWorld);
+            Vector3 targetLocal = wanderTarget + new Vector3(0.0f, 0.0f, wanderDistance);
+            Vector3 targetWorld = this.transform.position + targetLocal;
+
+            Seek(targetWorld);
+            freqWander = 0.0f;
+        }
+        else
+            freqWander += Time.deltaTime;
     }
 
     public void Reload()
@@ -80,12 +87,13 @@ public class Moves : MonoBehaviour
         {
             float angle = ShootingAngle();
 
-            Debug.Log(angle);
-            shellSpawner.transform.Rotate(angle, 0.0f, 0.0f, Space.Self);
+            Vector3 euler = shellSpawner.transform.localRotation.eulerAngles;
+            shellSpawner.transform.localRotation = Quaternion.identity;
+
+            shellSpawner.transform.localRotation = Quaternion.Euler(angle, euler.y, euler.z);
             //shellSpawner.rotation = Quaternion.AngleAxis(shellSpawner.eulerAngles., new Vector3(0.0f, 1.0f, 0.0f));
-            Rigidbody rb = Instantiate(shell.GetComponent<Rigidbody>(), shellSpawner.transform.position, shellSpawner.transform.localRotation);
+            Rigidbody rb = Instantiate(shell.GetComponent<Rigidbody>(), shellSpawner.transform.position, shellSpawner.transform.rotation);
             rb.velocity = shellSpawner.transform.forward * shellVelocity;
-            shellSpawner.transform.Rotate(-angle, 0.0f, 0.0f, Space.Self);
             freq = 0.0f;
             ammo--;
         }
@@ -101,8 +109,10 @@ public class Moves : MonoBehaviour
     {
         float a = Mathf.Pow(shellVelocity, 2);
         float b = Mathf.Pow(shellVelocity, 4);
-        float c = gravity * (gravity * Mathf.Pow(target.transform.position.z, 2) + (2 * target.transform.position.y * Mathf.Pow(shellVelocity, 2)));
-        float d = gravity * target.transform.position.z;
+        float targetY = 0;
+        float targetZ = Vector3.Distance(shellSpawner.transform.worldToLocalMatrix * target.transform.position, shellSpawner.transform.localPosition);
+        float c = gravity * (gravity * Mathf.Pow(targetZ, 2) + (2 * targetY * Mathf.Pow(shellVelocity, 2)));
+        float d = gravity * targetZ;
         float shootingAngle = (a - (Mathf.Sqrt(b - c))) / d;
 
         return Mathf.Rad2Deg * (Mathf.Atan(shootingAngle));
