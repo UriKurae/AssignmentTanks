@@ -19,5 +19,8 @@ public class ShellScript : MonoBehaviour
        
     }
 
-    
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Tank") GameObject.Destroy(collision.gameObject);
+    }
 }
