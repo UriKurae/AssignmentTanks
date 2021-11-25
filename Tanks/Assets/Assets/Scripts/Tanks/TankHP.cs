@@ -40,12 +40,12 @@ public class TankHP : MonoBehaviour
         // If the current health is at or below zero and it has not yet been registered, call OnDeath.
         if (mCurrentHealth <= 0f)
         {
-            if (this.gameObject.tag == "RedTank" && GameController.choosen == TANK.RED)
+            if (this.gameObject.tag == "BlueTank" && GameController.choosen == TANK.RED)
             {
                 canvas.gameObject.SetActive(true);
                 resultText.text = "Congratulations, you won!";
             }
-            else if(this.gameObject.tag == "BlueTank" && GameController.choosen == TANK.BLUE)
+            else if(this.gameObject.tag == "RedTank" && GameController.choosen == TANK.BLUE)
             {
                 canvas.gameObject.SetActive(true);
                 resultText.text = "Congratulations, you won!";

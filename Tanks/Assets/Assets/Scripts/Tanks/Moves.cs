@@ -19,6 +19,7 @@ public class Moves : MonoBehaviour
 
     private float freq = 5.0f;
     private float freqWander = 1.5f;
+    private float freqShoot = 1.5f;
     public int ammo = 0;
 
     public GameObject shell;
@@ -50,7 +51,7 @@ public class Moves : MonoBehaviour
     }
     public void Wander()
     {
-        if (freqWander >= 1.5f)
+        if (freqWander >= 1.75f)
         {
             Vector3 wanderTarget = Vector3.zero;
             TurnAround();
@@ -65,8 +66,8 @@ public class Moves : MonoBehaviour
             wanderTarget.Normalize();
             wanderTarget *= wanderRadius;
 
-            Vector3 targetLocal = wanderTarget + new Vector3(0.0f, 0.0f, wanderDistance);
-            Vector3 targetWorld = this.transform.position + targetLocal;
+           // Vector3 targetLocal = wanderTarget + new Vector3(0.0f, 0.0f, wanderDistance);
+            Vector3 targetWorld = this.transform.position + wanderTarget;
 
             Seek(targetWorld);
             freqWander = 0.0f;
@@ -92,7 +93,7 @@ public class Moves : MonoBehaviour
         {
             StopTrail();
 
-            if (freq >= 1.0f)
+            if (freqShoot >= 1.0f)
             {
                 float angle = ShootingAngle();
 
@@ -100,18 +101,18 @@ public class Moves : MonoBehaviour
                 shellSpawner.transform.localRotation = Quaternion.identity;
 
                 shellSpawner.transform.localRotation = Quaternion.Euler(angle, euler.y, euler.z);
-                //shellSpawner.rotation = Quaternion.AngleAxis(shellSpawner.eulerAngles., new Vector3(0.0f, 1.0f, 0.0f));
+
                 Rigidbody rb = Instantiate(shell.GetComponent<Rigidbody>(), shellSpawner.transform.position, shellSpawner.transform.rotation);
                 rb.velocity = shellSpawner.transform.forward * shellVelocity;
                 rb.gameObject.GetComponent<ShellScript>().parent = this.gameObject;
 
-                freq = 0.0f;
+                freqShoot = 0.0f;
                 ammo--;
             }
             else
             {
                 turret.transform.LookAt(target.transform, new Vector3(0.0f, 1.0f, 0.0f));
-                freq += Time.deltaTime;
+                freqShoot += Time.deltaTime;
             } 
         }
 

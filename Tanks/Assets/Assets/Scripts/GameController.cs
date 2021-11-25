@@ -22,7 +22,11 @@ public class GameController : MonoBehaviour
         choosen = TANK.BLUE;
         SceneManager.LoadScene("Tanks");
     }
-    
+
+    private void Update()
+    {
+        Debug.Log(choosen);
+    }
     public void PlayAgain()
     {
         choosen = TANK.NONE;
