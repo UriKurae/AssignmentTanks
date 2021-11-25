@@ -123,7 +123,7 @@ public class Moves : MonoBehaviour
     {
         float a = Mathf.Pow(shellVelocity, 2);
         float b = Mathf.Pow(shellVelocity, 4);
-        float targetY = 0;
+        float targetY = target.transform.position.y - shellSpawner.transform.position.y;
         float targetZ = Vector3.Distance(shellSpawner.transform.worldToLocalMatrix * target.transform.position, shellSpawner.transform.localPosition);
         float c = gravity * (gravity * Mathf.Pow(targetZ, 2) + (2 * targetY * Mathf.Pow(shellVelocity, 2)));
         float d = gravity * targetZ;
