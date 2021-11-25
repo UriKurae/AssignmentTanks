@@ -95,6 +95,7 @@ public class Moves : MonoBehaviour
 
             if (freqShoot >= 1.0f)
             {
+                turret.transform.LookAt(target.transform, new Vector3(0.0f, 1.0f, 0.0f));
                 float angle = ShootingAngle();
 
                 Vector3 euler = shellSpawner.transform.localRotation.eulerAngles;

@@ -5,8 +5,8 @@ using UnityEngine;
 using Pada1.BBCore;
 using Pada1.BBCore.Framework;
 
-[Condition("MyConditions/HasAmmo?")]
-[Help("Checks if this tank has ammo.")]
+[Condition("MyConditions/HasNoAmmo?")]
+[Help("Checks if this tank has no ammo.")]
 public class HasNoAmmo : ConditionBase
 {
     [InParam("Ammo left")]
@@ -15,7 +15,6 @@ public class HasNoAmmo : ConditionBase
 
     public override bool Check()
     {
-       //Debug.Log("Ammo left is " + moves.ammo);
-        return moves.ammo > 0;
+        return moves.ammo == 0;
     }
 }

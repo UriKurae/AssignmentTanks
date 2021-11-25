@@ -19,6 +19,7 @@ public class IsFarFromBase : ConditionBase
 
     public override bool Check()
     {
-        return (Vector3.Distance(selfTank.transform.position, baseLocation.transform.position) > 2.0f);
+        int ammo = selfTank.gameObject.GetComponent<Moves>().ammo;
+        return ((Vector3.Distance(selfTank.transform.position, baseLocation.transform.position) > 2.0f) && ammo == 0);
     }
 }

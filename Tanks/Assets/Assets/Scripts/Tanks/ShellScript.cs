@@ -11,7 +11,7 @@ public class ShellScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        tankHP = parent.GetComponent<Moves>().target.GetComponent<TankHP>();
+       if (parent) tankHP = parent.GetComponent<Moves>().target.GetComponent<TankHP>();
     }
 
     // Update is called once per frame
@@ -22,20 +22,23 @@ public class ShellScript : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject == parent.GetComponent<Moves>().target)
+        if (collision.gameObject && parent)
         {
-            tankHP.TakeDamage();
-        }
+            if (collision.gameObject == parent.GetComponent<Moves>().target)
+            {
+                tankHP.TakeDamage();
+            }
 
-        if (collision.gameObject != parent)
-        {
-            particle.GetComponent<AudioSource>().Play();
-            particle.transform.parent = null;
-            particle.GetComponent<ParticleSystem>().Play();
-            ParticleSystem.MainModule module = particle.GetComponent<ParticleSystem>().main;
-            GameObject.Destroy(particle, module.duration);
-            GameObject.Destroy(this.gameObject);
-            Debug.Log(collision.gameObject);
+            if (collision.gameObject != parent)
+            {
+                particle.GetComponent<AudioSource>().Play();
+                particle.transform.parent = null;
+                particle.GetComponent<ParticleSystem>().Play();
+                ParticleSystem.MainModule module = particle.GetComponent<ParticleSystem>().main;
+                GameObject.Destroy(particle, module.duration);
+                GameObject.Destroy(this.gameObject);
+                Debug.Log(collision.gameObject);
+            } 
         }
     }
 }

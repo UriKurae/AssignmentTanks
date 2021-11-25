@@ -17,6 +17,9 @@ public class IsTankFar : ConditionBase
 
     public override bool Check()
     {
-        return Vector3.Distance(selfTank.transform.position, enemyTank.transform.position) > 15.0f;
+        if (selfTank && enemyTank)
+            return Vector3.Distance(selfTank.transform.position, enemyTank.transform.position) > 15.0f;
+        else
+            return false;
     }
 }
